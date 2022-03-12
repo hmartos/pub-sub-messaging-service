@@ -1,0 +1,13 @@
+.vscode
+coverage
+node_modules
+npm-debug.log
+tests
+.env.*
+.gitignore
+.prettier*
+CHANGELOG.md
+docker-compose.yml
+Dockerfile
+jest.config.js
+README.md

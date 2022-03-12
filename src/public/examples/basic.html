@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="../styles.css" />
+        <title>Pub/Sub Messaging Service - Basic Example</title>
+    </head>
+
+    <body class="wrapper">
+        <h2 class="title">Basic example</h2>
+        <div class="card">
+            <h3 class="text-center">Events and Messages</h3>
+            <div class="events">
+                <ul id="messages"></ul>
+            </div>
+        </div>
+        <form action="" id="form">
+            <input id="input" autocomplete="off" />
+            <button>Send</button>
+        </form>
+    </body>
+
+    <!-- Load the socket.IO library from server -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const BASE_URL = 'http://localhost:3000';
+        const messages = document.getElementById('messages');
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+
+        // TODO Extract to JS file (to reuse in other example)
+        const handleSubmit = async event => {
+            try {
+                event.preventDefault(); // prevents page reloading
+
+                await fetch(`${BASE_URL}/message`, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ data: input.value }),
+                });
+
+                form.reset();
+            } catch (error) {
+                console.error('Error sending message', error);
+            }
+        };
+
+        const logMessage = message => {
+            const timestamp = new Date().toLocaleString();
+            console.log(`${timestamp} - ${message}`);
+            const li = document.createElement('li');
+            li.className = 'message';
+            li.appendChild(document.createTextNode(`${timestamp} - ${message}`));
+            messages.prepend(li);
+        };
+
+        form.addEventListener('submit', handleSubmit);
+
+        // Connect to Pub/Sub messaging service
+        const socket = io(BASE_URL);
+
+        // Subscribe to 'connect' event
+        socket.on('connect', function () {
+            logMessage('Client connected!');
+        });
+
+        // Subscribe to 'notification' event
+        socket.on('notification', function (msg) {
+            logMessage(`Notification received: ${msg}`);
+        });
+    </script>
+</html>

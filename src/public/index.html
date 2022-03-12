@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="styles.css" />
+        <title>Pub/Sub Messaging Service - Examples</title>
+    </head>
+
+    <body class="wrapper">
+        <div class="card">
+            <h1 class="text-center">Welcome to Pub/Sub Messaging Service!</h1>
+            <h2>This self-hosted service is a Pub/Sub messaging system for real time notifications.</h2>
+            <h3>Navigate through the different examples to see it in action!</h3>
+            <ul id="examples">
+                <li><a href="examples/basic.html">Basic example</a></li>
+                <li><a href="examples/websocket.html">Connecting using a standard WebSocket</a></li>
+                <li><a href="examples/namespaces.html">Using different communication channels - Namespaces</a></li>
+                <li>
+                    Publisher/Subscriber Authentication
+                    <ul>
+                        <li><a href="examples/socket-auth-token.html">Using a secret authentication token</a></li>
+                        <li>
+                            <a href="examples/socket-auth-token-forwarding.html"
+                                >Authentication token forwarding - Validating the token externally</a
+                            >
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </body>
+</html>

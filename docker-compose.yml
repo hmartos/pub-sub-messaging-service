@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+    pub-sub-messaging-service:
+        container_name: pub-sub-messaging-service
+        image: pub-sub-messaging-service
+        environment:
+            - API_AUTH_TYPE=NO_AUTH
+            - API_AUTH_TOKEN=MY_CUSTOM_API_TOKEN
+            - API_AUTH_URL=http://localhost:8080/api/auth
+            - SOCKET_AUTH_TYPE=NO_AUTH
+            - SOCKET_AUTH_TOKEN=MY_CUSTOM_SOCKET_TOKEN
+            - SOCKET_AUTH_URL=http://localhost:8080/socket/auth
+        ports:
+            - '3000:3000'
+        networks:
+            - pub-sub-messaging-network
+
+networks:
+    pub-sub-messaging-network:

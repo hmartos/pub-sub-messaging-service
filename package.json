@@ -1,0 +1,32 @@
+{
+  "name": "pub-sub-messaging-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./src/bin/www",
+    "start:docker": "npm run docker:build && docker-compose up",
+    "test": "jest --coverage --testTimeout=10000",
+    "prettier:check": "prettier --check './src/**/*.{html,js,css,scss}'",
+    "prettier:format": "prettier --write './src/**/*.{html,js,css,scss}'",
+    "validate": "npm-run-all test prettier:check",
+    "docker:build": "docker build -t pub-sub-messaging-service ."
+  },
+  "dependencies": {
+    "axios": "^0.24.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "~4.17.1",
+    "http-errors": "~1.8.1",
+    "morgan": "~1.10.0",
+    "path": "^0.12.7",
+    "socket.io": "^4.4.0"
+  },
+  "devDependencies": {
+    "http": "0.0.1-security",
+    "jest": "^27.4.4",
+    "prettier": "^2.5.1",
+    "socket.io-client": "^4.4.1",
+    "supertest": "^6.1.6"
+  }
+}
