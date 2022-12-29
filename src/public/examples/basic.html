@@ -15,17 +15,35 @@
     </head>
 
     <body class="wrapper">
+        <h1 class="title">Pub/Sub Messaging Service</h1>
         <h2 class="title">Basic example</h2>
         <div class="card">
-            <h3 class="text-center">Events and Messages</h3>
-            <div class="events">
-                <ul id="messages"></ul>
+            <div class="content">
+                <h3 class="text-center mt-0">Configuration</h3>
+                <strong>Setup the following environment variables and restart the service</strong>
+                <code>
+                    <p>
+                        API_AUTH_TYPE=NO_AUTH
+                        <br />
+                        SOCKET_AUTH_TYPE=NO_AUTH
+                    </p>
+                </code>
             </div>
         </div>
-        <form action="" id="form">
-            <input id="input" autocomplete="off" />
-            <button>Send</button>
-        </form>
+        <div class="card margin">
+            <div class="content">
+                <h3 class="text-center mt-0">Events and Messages</h3>
+                <div class="events">
+                    <ul id="messages"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="input">
+            <form action="" id="form">
+                <input id="input" autocomplete="off" />
+                <button>Send</button>
+            </form>
+        </div>
     </body>
 
     <!-- Load the socket.IO library from server -->
@@ -36,19 +54,20 @@
         const form = document.getElementById('form');
         const input = document.getElementById('input');
 
-        // TODO Extract to JS file (to reuse in other example)
+        //Send a message to connected clients (as a Publisher)
         const handleSubmit = async event => {
             try {
                 event.preventDefault(); // prevents page reloading
-
-                await fetch(`${BASE_URL}/message`, {
-                    method: 'POST',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ data: input.value }),
-                });
+                if (input.value) {
+                    await fetch(`${BASE_URL}/message`, {
+                        method: 'POST',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ data: input.value }),
+                    });
+                }
 
                 form.reset();
             } catch (error) {
@@ -56,6 +75,7 @@
             }
         };
 
+        //Show received messages in page
         const logMessage = message => {
             const timestamp = new Date().toLocaleString();
             console.log(`${timestamp} - ${message}`);
@@ -78,6 +98,11 @@
         // Subscribe to 'notification' event
         socket.on('notification', function (msg) {
             logMessage(`Notification received: ${msg}`);
+        });
+
+        // Subscribe to 'connect_error' error event
+        socket.on('connect_error', err => {
+            logMessage(`Connection error: ${err.message}`);
         });
     </script>
 </html>

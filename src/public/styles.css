@@ -8,7 +8,7 @@ body {
     }
 }
 .wrapper {
-    padding: 32px 16px;
+    padding: 16px;
     background-color: rgb(90, 17, 165);
 }
 @media screen and (max-width: 596px) {
@@ -18,29 +18,45 @@ body {
     h2 {
         font-size: 1.25em;
     }
+    h3 {
+        font-size: 1.125em;
+    }
 }
 .card {
     border-radius: 8px;
     background: white;
-    padding: 16px 24px;
     max-width: 768px;
     margin: 0 auto;
 }
+.card .content {
+    padding: 16px 24px;
+}
 .card .events {
-    height: 450px;
+    height: 250px;
     overflow: auto;
 }
 .text-center {
     text-align: center;
+}
+.mt-0 {
+    margin-top: 0px;
+}
+.margin {
+    margin-top: 24px;
 }
 .title {
     text-align: center;
     color: white;
     margin-top: 0px;
 }
+.input {
+    display: flex;
+    justify-content: center;
+}
 form {
     display: flex;
     margin-top: 32px;
+    width: 100%;
     max-width: 768px;
 }
 form input {

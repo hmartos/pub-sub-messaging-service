@@ -1,26 +1,26 @@
 # Pub/Sub Messaging Service
 
-This project is a self-hosted Pub/Sub implementation with [NodeJS](https://nodejs.org/) and [Docker](https://www.docker.com/) for real time notifications.
+This self-hosted service is a Pub/Sub messaging implementation for real time notifications with [NodeJS](https://nodejs.org/) and [Docker](https://www.docker.com/).
 
-The publisher(s) can send messages to the subscriber(s) through an HTTP request to a Restful API powered by [Express] and [Socket.IO](https://socket.io/).
+The publisher(s) can send messages to the subscriber(s) through an HTTP request to a RESTful API powered by [Express](https://expressjs.com/) and [Socket.IO](https://socket.io/).
 
 ## Getting started
 
 ### Local environment
 
-You can easily setup a local environment for this project by cloning the repository, installing the dependencies with `npm install`, and executing the command `npm run start` to start the Pub/Sub messaging service.
+You can setup a local environment for this project by cloning the repository, installing the dependencies with `npm install`, and executing the command `npm run start` to start the Pub/Sub Messaging Service.
 
 The service will be listening at `http://localhost:3000`.
 
 ### Running with Docker
 
-You can run the `pub-sub-messaging-service` Docker image with `docker run --rm -p "3000:3000" pub-sub-messaging-service`
+You can run the [Docker image](https://hub.docker.com/repository/docker/hmartos/pub-sub-messaging-service) in an ephimeral container executing `docker run --rm -p "3000:3000" hmartos/pub-sub-messaging-service`
 
 ## Connecting a client (Subscriber)
 
 Clients can subscribe to the messages sent by publishers using the [Socket.IO client](https://socket.io/docs/v4/client-installation/) or with a standard [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket).
 
-## Using the Socket.IO client
+### Using the Socket.IO client (Recomended)
 
 You can suscribe a client to receive notifications using `socket.io-client` library. Example:
 
@@ -29,12 +29,19 @@ You can suscribe a client to receive notifications using `socket.io-client` libr
 
 socket = io('http://localhost:3000');
 
-socket.on('connect', function(){
-  console.log("Client connected")!
+// Subscribe to 'connect' event
+socket.on('connect', function () {
+    console.log('Client connected!');
 });
 
-socket.on('notification', function(data){
-  console.log(`Notification received!`, data)
+// Subscribe to 'notification' event
+socket.on('notification', function (msg) {
+    console.log(`Notification received: ${msg}`);
+});
+
+// Subscribe to 'connect_error' error event
+socket.on('connect_error', err => {
+    console.log(`Connection error: ${err.message}`);
 });
 ```
 
@@ -53,7 +60,7 @@ socket.addEventListener('open', function (event) {
     console.log('Client connected');
 });
 
-// TODO Listen for messages
+// Listen for messages
 socket.addEventListener('message', function (event) {
     console.log('Message from server ', event.data);
 });
@@ -61,14 +68,11 @@ socket.addEventListener('message', function (event) {
 
 You can see a [working example](http://localhost:3000/websocket.html) in `websocket.html` file in `examples` folder.
 
-## Sending notifications to connected clients
+## Sending notifications to connected clients (Publisher)
 
 To send a notification to all connected clients you should make a POST request to `http://localhost:3000/message`, sending the data you want to send in the notification in a JSON with a `data` key.
 
-TODO Remove `data` key -> just take the body
 Data can be a string, number, boolean, object or array in a JSON. If request body is not a valid JSON with `data` key, server will respond with a `400 Bad Request` status code. Valid body examples:
-
-TODO Redo examples
 
 ```json
 { "data": 1 }
@@ -92,19 +96,26 @@ Example request:
 ```bash
 curl -X POST \
   http://localhost:3000/message \
-  -H 'Accept: */*' \
-  -H 'Accept-Encoding: gzip, deflate' \
-  -H 'Authorization: Bearer eyJraWQiOiJrMSIsImFsZyI6IlJTMjU2In0.eyJpc3MiOiJ1c2Vyc01hbmFnZW1lbnRSZXN0QXBpIiwiYXVkIjoiTkZRIiwiZXhwIjoxNTY1MTk4OTYwLCJqdGkiOiJfZWZNRkdmTjVReXVsQ085dEpFWGVRIiwic3ViIjoiMiJ9.BAsncTBXStCJUTzzYJT6hi9pc54LQooLdwzyRukV6vkLaMR0acc8aQlzbuJajN96BytHzLKS8T93MWVcXdwN1HdSl7fbaTlzCpH6Q57e5RrXptScbnJJPh_jv6MiI_kYKqYgQMEUT9mqNrhS4daSp8nWs2BIVbiO-cR-paEfcIAgJp1FFxNCy-6yLUQ0_gHNqRWihLMw7t3TNdTS0upY4bNmC6uaY8yrQNoDJmOtQX7XG-BwSbFzbN_tw09pjNnqlA3MR14ZZyNONEg44Elyv6ysEOPLVLLcmn1_IzxYv2th-zR3slwpPuiWtBG0-wQRBsW3BO5oS4Ld1T4LEq2R2A' \
-  -H 'Cache-Control: no-cache' \
-  -H 'Connection: keep-alive' \
-  -H 'Content-Length: 48' \
   -H 'Content-Type: application/json' \
-  -H 'Host: localhost:3000' \
-  -H 'Postman-Token: 45acd051-4e3a-42df-98e7-200e4fe2cff1,94d426eb-c235-4546-8d79-11802664a0e1' \
-  -H 'User-Agent: PostmanRuntime/7.15.2' \
-  -H 'cache-control: no-cache' \
   -d '{ "data": "Message - 2019-08-07T09:29:30.007Z" }'
 ```
+
+## Configuration
+
+This module have multiple configuration options for authentication and namespaces. To set a configuration option you should set different environment variables in each case.
+
+In a local setup, you can create a `.env` file with the value for each environment variable, like the example you can find in the [`.env.example`](./.env.example) file.
+
+```sh
+API_AUTH_TYPE="NO_AUTH"
+API_AUTH_TOKEN="MY_CUSTOM_API_TOKEN"
+API_AUTH_URL="http://localhost:8080/api/auth"
+SOCKET_AUTH_TYPE="NO_AUTH"
+SOCKET_AUTH_TOKEN="MY_CUSTOM_SOCKET_TOKEN"
+SOCKET_AUTH_URL="http://localhost:8080/socket/auth"
+```
+
+In Docker, you can add the [environment variables as arguments](https://docs.docker.com/engine/reference/run/#env-environment-variables) to the `docker run` command or in a [`environment`](https://docs.docker.com/compose/environment-variables/) block in a `docker-compose.yml` file
 
 ## Authentication
 
@@ -112,9 +123,9 @@ There are different authentication methods, which can be configured independentl
 
 The configuration of the different authentication options is done through environment variables.
 
-To configure authentication for the publisher, you should set the `API_AUTH_TYPE` environment variable.
+To configure authentication for the publisher, you should set the `API_AUTH_*` environment variable.
 
-To configure subscriber authentication, you should set the `SOCKET_AUTH_TYPE` environment variable.
+To configure subscriber authentication, you should set the `SOCKET_AUTH_*` environment variable.
 
 The following section describes the different options available for each authentication method, along with an example configuration for each of them.
 
@@ -129,14 +140,14 @@ API_AUTH_TYPE="NO_AUTH"
 SOCKET_AUTH_TYPE="NO_AUTH"
 ```
 
-TODO Examples for publisher and subscriber
+There is a complete example in [basic.html](src/public/examples/basic.html)
 
-### Using a secret token
+### Using a shared secret token (API Key)
 
 For Publisher authentication, it compares the value sent in the `Authentication` header of the HTTP request to `/message` endpoint with the value of the `API_AUTH_TOKEN` environment variable.
 If they are the same, then the notification is processed. If not, the request will be rejected with a `401 Not Authorized` status.
 
-For Subscriber authentication, it compares the value sent in the [`auth` socket option](https://socket.io/docs/v4/middlewares/#sending-credentials) with the value of the `SOCKET_AUTH_TOKEN` environment variable. 
+For Subscriber authentication, it compares the value sent in the [`auth` socket option](https://socket.io/docs/v4/middlewares/#sending-credentials) with the value of the `SOCKET_AUTH_TOKEN` environment variable.
 If they are the same, then the notification is processed. If not, the request will be rejected with a `401 Not Authorized` status.
 
 ```sh
@@ -148,7 +159,7 @@ SOCKET_AUTH_TYPE="AUTH_TOKEN"
 SOCKET_AUTH_TOKEN="MY_CUSTOM_SOCKET_TOKEN"
 ```
 
-TODO Examples for publisher and subscriber
+There is a complete example in [socket-auth-token.html](src/public/examples/socket-auth-token.html)
 
 ### Externally validating the token - "Token forwarding"
 
@@ -157,15 +168,15 @@ Forward the authentication token received in the `Authentication` header by maki
 If the response to the forwarded authentication request has a [Succesful HTTP status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#successful_responses), then the notification/connection is proccesed. If not, the request will be rejected with a `401 Not Authorized` status.
 
 ```sh
-# Publisher authentication method - Secret token
+# Publisher authentication method - Token forwarding
 API_AUTH_TYPE="AUTH_TOKEN_FORWARDING"
-API_AUTH_URL="MY_CUSTOM_API_AUTH_URL"
-# Subscriber authentication method - Secret token
+API_AUTH_URL="MY_AUTHENTICATION_API_URL"
+# Subscriber authentication method - Token forwarding
 SOCKET_AUTH_TYPE="AUTH_TOKEN_FORWARDING"
-SOCKET_AUTH_URL="MY_CUSTOM_SOCKET_AUTH_URL"
+SOCKET_AUTH_URL="MY_AUTHENTICATION_API_URL"
 ```
 
-TODO Examples for publisher and subscriber
+There is a complete example in [socket-auth-token-forwarding.html](src/public/examples/socket-auth-token-forwarding.html)
 
 ## Namespaces / Topics
 
@@ -173,24 +184,14 @@ You can use different namespaces to allow separate communication channels or roo
 
 ### Sending notifications to connected clients to a namespace
 
-If you want to send a notification only to a specific namespace, you must add a `namespace` queryParam to the POST request to `/message` endpoint with the namespace value.
+If you want to send a notification only to a specific namespace, you must add a `namespace` query parameter to the POST request to `/message` endpoint with the namespace value.
 
 Example request:
 
 ```bash
 curl -X POST \
-  'http://localhost:30000/message?namespace=test-namespace' \
-  -H 'Accept: */*' \
-  -H 'Accept-Encoding: gzip, deflate' \
-  -H 'Authorization: Bearer eyJraWQiOiJrMSIsImFsZyI6IlJTMjU2In0.eyJpc3MiOiJ1c2Vyc01hbmFnZW1lbnRSZXN0QXBpIiwiYXVkIjoiTkZRIiwiZXhwIjoxNTY1MTk4OTYwLCJqdGkiOiJfZWZNRkdmTjVReXVsQ085dEpFWGVRIiwic3ViIjoiMiJ9.BAsncTBXStCJUTzzYJT6hi9pc54LQooLdwzyRukV6vkLaMR0acc8aQlzbuJajN96BytHzLKS8T93MWVcXdwN1HdSl7fbaTlzCpH6Q57e5RrXptScbnJJPh_jv6MiI_kYKqYgQMEUT9mqNrhS4daSp8nWs2BIVbiO-cR-paEfcIAgJp1FFxNCy-6yLUQ0_gHNqRWihLMw7t3TNdTS0upY4bNmC6uaY8yrQNoDJmOtQX7XG-BwSbFzbN_tw09pjNnqlA3MR14ZZyNONEg44Elyv6ysEOPLVLLcmn1_IzxYv2th-zR3slwpPuiWtBG0-wQRBsW3BO5oS4Ld1T4LEq2R2A' \
-  -H 'Cache-Control: no-cache' \
-  -H 'Connection: keep-alive' \
-  -H 'Content-Length: 48' \
+  'http://localhost:3000/message?namespace=test-namespace' \
   -H 'Content-Type: application/json' \
-  -H 'Host: localhost:3000' \
-  -H 'Postman-Token: 45acd051-4e3a-42df-98e7-200e4fe2cff1,94d426eb-c235-4546-8d79-11802664a0e1' \
-  -H 'User-Agent: PostmanRuntime/7.15.2' \
-  -H 'cache-control: no-cache' \
   -d '{ "data": "Message - 2019-08-07T09:29:30.007Z" }'
 ```
 
@@ -206,11 +207,19 @@ socket.on('connect', function(){
   console.log("Client connected")!
 });
 
-socket.on('notification', function(data){
-  console.log(`Notification received!`, data)
+socket.on('notification', function(msg){
+  console.log(`Notification received!`, msg)
 });
 ```
 
-## Build with Docker
+## Building with Docker
 
 To Build a Docker image from source code execute the command `docker build -t pub-sub-messaging-service .`
+
+## Uploading to DockerHub
+
+Login with your [DockerHub](https://hub.docker.com/) credentials executing the command `docker login`.
+
+Tag the Docker image executing the command `docker tag pub-sub-messaging-service $username/pub-sub-messaging-service:$tagname`.
+
+Upload the Docker image to DockerHub repository executing the command `docker push $username/pub-sub-messaging-service:$tagname`.
